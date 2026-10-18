@@ -8,6 +8,14 @@
 <label for="accountName">New Account Name:</label>
 <input type="text" id="accountName" name="accountName" @bind="newAccountName">
 <br>
+<label for="accountType">New Account Type:</label>
+<select id="accountType" name="accountType" @bind="selectedAccountType">
+    @foreach (AccountType type in Enum.GetValues<AccountType>())
+    {
+        <option value="@type">@type</option>
+    }
+</select>
+<br>
 <button class="btn btn-primary" @onclick="btnAddAccount_Click">Add Account</button>
 
 <br>
@@ -36,15 +44,22 @@
 <input type="text" id="depositAmount" name="depositAmount" @bind="strDepositAmount">
 <button class="btn btn-primary" @onclick="btnDeposit_Click">Deposit</button>
 <br>
+<br
+
+<label for="withdrawalAmount">Withdrawal Amount:</label>
+<input type="text" id="withdrawalAmount" name="withdrawalAmount" @bind="strWithdrawalAmount">
+<button class="btn btn-primary" @onclick="btnWithdraw_Click">Withdraw</button>
+<br>
 
 @code {
 
     private string newAccountName = string.Empty;              // name in the new account textbox
     private string selectedAccountName = "NoAccountSelected"; // account name selected from Acccout dropdown
+    private AccountType selectedAccountType;                   // account type selected from Account Type dropdown
     private string strAccountBalance = string.Empty;           // display for the account balance
     private decimal accountBalance = 0.00m;                   // numeric value of account balance
     private string strDepositAmount = string.Empty;            // amount to deposit as a string
-
+    private string strWithdrawalAmount = string.Empty;         // amount to withdraw as a string
     private List<string> accountList = new List<string>();
     AccountService acctService = new AccountService();
 
@@ -76,12 +91,21 @@
         StateHasChanged();
     }
 
+     private void btnWithdraw_Click()
+    {
+        decimal amount = decimal.Parse(strWithdrawalAmount);
+        acctService.Withdrawal(selectedAccountName, amount);
+        accountBalance = acctService.GetAccountBalance(selectedAccountName);
+        strAccountBalance = accountBalance.ToString();
+        StateHasChanged();
+    }
+
     private void btnAddAccount_Click()
     {
         Console.WriteLine("Add Account button clicked."); // For debugging
 
         string accountName = newAccountName;
-        acctService.CreateAccount(accountName, AccountType.Silver);
+        acctService.CreateAccount(accountName, selectedAccountType);
 
         accountList = acctService.GetAllAccounts();
 
